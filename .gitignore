@@ -1,0 +1,15 @@
+er_sim
+er_sim.exe
+er_log.txt
+er_config.txt
+er_report.txt
+*.o
+*.obj
+*.ilk
+*.pdb
+*.user
+.vs/
+Debug/
+Release/
+x64/
+x86/
