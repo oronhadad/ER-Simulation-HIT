@@ -34,7 +34,7 @@ void insert_event(Event **head, double time, EventType type,
     e->type       = type;
     e->patient_id = patient_id;
     e->doctor_id  = doctor_id;
-    e->severity   = sev;
+    e->severity   = sev;    
     e->next       = NULL;
 
     /* Insert before first node with a larger time */
@@ -72,6 +72,7 @@ void free_fel(Event **head)
 
 /* ─── Waiting queue operations (FIFO linked list) ─────────────────────────── */
 
+/* Add patient to the rear of a FIFO waiting queue */
 void enqueue(Patient **front, Patient **rear, Patient *p)
 {
     p->next = NULL;
@@ -83,6 +84,7 @@ void enqueue(Patient **front, Patient **rear, Patient *p)
     *rear = p;
 }
 
+/* Remove and return the patient at the front of the waiting queue */
 Patient *dequeue(Patient **front, Patient **rear)
 {
     if (!*front) return NULL;
@@ -95,6 +97,7 @@ Patient *dequeue(Patient **front, Patient **rear)
 
 /* ─── Patient helpers ─────────────────────────────────────────────────────── */
 
+/* Allocate and initialise a new patient with random name and diagnosis */
 Patient *create_patient(int id, Severity sev, double arrival_time)
 {
     Patient *p = (Patient *)malloc(sizeof(Patient));
@@ -116,10 +119,12 @@ Patient *create_patient(int id, Severity sev, double arrival_time)
     return p;
 }
 
+/* Free a single patient node */
 void free_patient(Patient *p) { free(p); }
 
 /* ─── Doctor helpers ──────────────────────────────────────────────────────── */
 
+/* Allocate an array of n doctors, all starting IDLE with zero stats */
 Doctor *create_doctors(int n)
 {
     Doctor *docs = (Doctor *)calloc(n, sizeof(Doctor));
@@ -248,6 +253,7 @@ void free_stats(SimStats *stats)
 
 /* ─── Event handlers ──────────────────────────────────────────────────────── */
 
+/* Event handler: patient arrives — assign to idle doctor or enqueue by severity */
 void handle_arrival(Event *e, Doctor *docs, int num_docs,
                     Patient *q_front[], Patient *q_rear[],
                     Event **fel_head, SimStats *stats,
@@ -289,6 +295,7 @@ void handle_arrival(Event *e, Doctor *docs, int num_docs,
         insert_event(fel_head, next_t, PATIENT_ARRIVAL, -1, -1, sev);
 }
 
+/* Event handler: treatment ends — free doctor, pull next patient by priority */
 void handle_completion(Event *e, Doctor *docs,
                        Patient *q_front[], Patient *q_rear[],
                        Event **fel_head, SimStats *stats,
@@ -335,6 +342,7 @@ void handle_completion(Event *e, Doctor *docs,
 
 /* ─── Console report ──────────────────────────────────────────────────────── */
 
+/* Print the full results report to stdout: patient stats, hourly breakdown, doctor utilization */
 void print_report(SimStats *stats, SimConfig *cfg, Doctor *docs)
 {
     static const char *SEV[NUM_SEVERITIES] = {"CRITICAL  ", "URGENT    ", "NON-URGENT"};
